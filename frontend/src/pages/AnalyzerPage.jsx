@@ -220,11 +220,20 @@ const AnalyzerPage = () => {
                         RECENT ANALYSIS
                     </div>
                     <div className="history-scroll-container" style={{ flex: 1, overflowY: 'auto' }}>
-                        {history.map((item, idx) => (
-                            <div key={idx} className="history-item" onClick={() => { setCode(item.code); setUserInput(item.userInput || ""); }}>
-                                {item._id.slice(-6)}: {item.code.substring(0, 20)}...
-                            </div>
-                        ))}
+                        {history.map((item, idx) => {
+                            const date = new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                            return (
+                                <div key={idx} className="history-item" onClick={() => { setCode(item.code); setUserInput(item.userInput || ""); }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <span style={{ fontWeight: 600, color: 'var(--accent-color)' }}>#{item._id.slice(-4)}</span>
+                                        <span style={{ fontSize: '0.7rem', opacity: 0.6 }}>{date}</span>
+                                    </div>
+                                    <div style={{ fontSize: '0.75rem', marginTop: '4px', opacity: 0.8, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                        {item.code.trim().substring(0, 30)}...
+                                    </div>
+                                </div>
+                            );
+                        })}
                     </div>
                 </nav>
 
@@ -238,7 +247,7 @@ const AnalyzerPage = () => {
             <main className="main-content">
                 <header style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
-                        <h2 style={{ fontSize: '1.8rem', fontWeight: 700, margin: 0 }}>Analyzer Studio</h2>
+                        <h2 style={{ fontSize: '1.8rem', fontWeight: 700, margin: 0 }}>Syntax and Semantic Analyzer Tool</h2>
                         <p style={{ color: 'var(--text-secondary)', margin: '0.5rem 0 0 0' }}>Semantic analysis and logic simulation.</p>
                     </div>
                     <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>

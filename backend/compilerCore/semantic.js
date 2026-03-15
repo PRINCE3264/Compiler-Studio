@@ -130,6 +130,25 @@ exports.check = (ast, code, userInput, language = 'cpp') => {
                 errors.push({ type: 'SEMANTIC', message: `Semantic Error: Identifier '${token.value}' is used but not declared.`, line: token.line });
             }
         }
+
+        // 5. Expression Type Check: Arithmetic on CHAR
+        if (token.type === 'OPERATOR' && ['+', '-', '*', '/'].includes(token.value)) {
+            const prev = tokens[i - 1];
+            const next = tokens[i + 1];
+            
+            if (prev?.type === 'IDENTIFIER' && next?.type === 'IDENTIFIER') {
+                const leftType = symbolTable.get(prev.value);
+                const rightType = symbolTable.get(next.value);
+                
+                if (leftType === 'char' && rightType === 'char' && language === 'cpp') {
+                    errors.push({ 
+                        type: 'SEMANTIC', 
+                        message: `Type Warning: Performing arithmetic on CHAR variables '${prev.value}' and '${next.value}'. If you intended to sum numbers, use INT datatype instead.`, 
+                        line: token.line 
+                    });
+                }
+            }
+        }
     }
 
     // 4. Logic-Aware Output Simulation (Enhanced Execution)
@@ -449,10 +468,18 @@ exports.check = (ast, code, userInput, language = 'cpp') => {
                         }
 
                         if (inputIdx < inputValues.length) {
-                            const val = inputValues[inputIdx++];
-                            runtimeVars.set(varName, val);
-                            outputs.push(` <span style="color: #10b981; font-weight: 700; text-shadow: 0 0 8px rgba(16, 185, 129, 0.4);">${val}</span>\n`); 
-                            currentOutputLength += val.length + 2;
+                             const val = inputValues[inputIdx++];
+                             const varDeclarationType = symbolTable.get(varName.split('[')[0]);
+                             
+                             // C++ Char behavior: If char, take ASCII value if it's a character
+                             if (varDeclarationType === 'char' && language === 'cpp' && isNaN(val)) {
+                                 runtimeVars.set(varName, val.charCodeAt(0).toString());
+                             } else {
+                                 runtimeVars.set(varName, val);
+                             }
+
+                             outputs.push(` <span style="color: #10b981; font-weight: 700; text-shadow: 0 0 8px rgba(16, 185, 129, 0.4);">${val}</span>\n`); 
+                             currentOutputLength += val.length + 2;
                         } else {
                             iterationCount = MAX_ITERATIONS + 1;
                             return;
