@@ -3,8 +3,8 @@ const Analysis = require('../models/Analysis');
 
 exports.postAnalysis = async (req, res) => {
     try {
-        const { code, userInput } = req.body;
-        const result = analyzerService.analyze(code, userInput);
+        const { code, userInput, language } = req.body;
+        const result = analyzerService.analyze(code, userInput, language);
 
         // Store in MongoDB
         const analysisSave = new Analysis({
